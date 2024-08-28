@@ -1,7 +1,5 @@
 import ipaddress
 
-ip_adress = input("Geben Sie die ip Adresse an: ")
-sub_mask = input("Geben Sie die Subnetzmaske oder präfix an: ")
 network_ip = 0
 broadcast = 0
 first_host = 0
@@ -44,26 +42,38 @@ cidr_to_subnet = {
     "32": "255.255.255.255"
 }
 
-if sub_mask.isdigit():
+def cidr_to_sub(sub_mask):
     subnet_mask = cidr_to_subnet.get(sub_mask)
-else:
-    subnet_mask = sub_mask
+    return subnet_mask
 
-network = ipaddress.IPv4Network(f"{ip_adress}/{subnet_mask}", strict=False)
+def get_network(ip_adress, sub_mask):
+    global network
+    if sub_mask.isdigit():
+        subnet_mask = cidr_to_subnet.get(sub_mask)
+    else:
+        subnet_mask = sub_mask
+    network = ipaddress.IPv4Network(f"{ip_adress}/{subnet_mask}", strict=False)
+    return network
 
+def net_ip_get(network):
+    network_ip = network.network_address
+    return network_ip
 
-network_ip = network.network_address
-broadcast = network.broadcast_address
-first_host = network[1] if network.prefixlen < 31 else network[0]
-last_host = network[-2] if network.prefixlen < 31 else network[-1]
-possible_hosts = network.num_addresses - 2 if network.prefixlen < 31 else network.num_addresses  # Korrektur der Berechnung der möglichen Hosts
+def broadcast_get(network):
+    broadcast = network.broadcast_address
+    return broadcast
 
+def first_host_get(network):
+    first_host = network[1] if network.prefixlen < 31 else network[0]
+    return first_host
 
-print(f"Netzwerk IP: {network_ip}")
-print(f"Erster Host: {first_host}")
-print(f"Letzter Host: {last_host}")
-print(f"Broadcast IP: {broadcast}")
-print(f"Anzahl der möglichen Host: {possible_hosts}")
+def last_host_get(network):
+    last_host = network[-2] if network.prefixlen < 31 else network[-1]
+    return last_host
+
+def possible_hosts_get(network):
+    possible_hosts = network.num_addresses - 2 if network.prefixlen < 31 else network.num_addresses
+    return possible_hosts
 
 
 
