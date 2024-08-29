@@ -8,11 +8,11 @@ def entry_focus_out(event):
         event.widget.insert(0, 'XXX')
 
 def entry_focus_out_cidr(event):
-    cidr = int(event.widget.get())
-    if cidr == '':
+    cidr = event.widget.get()
+    if event.widget.get() == '':
         event.widget.insert(0, 'XXX')
-    elif 0 < cidr < 32:
-        subnet_mask = net.cidr_to_sub(str(cidr))
+    elif cidr.isdigit():
+        subnet_mask = net.cidr_to_sub(cidr)
         sub_octetts = subnet_mask.split('.')
         entry_sub_1.delete(0, tk.END)
         entry_sub_2.delete(0, tk.END)
@@ -33,7 +33,7 @@ window.title('Netzwerk Tool')
 window.geometry('600x400')
 
 # entry IP Adress and Prefix
-label_title_ip = ttk.Label(window, text='IP Adress (OPTIONAL: CIDR Prefix)', font=('Arial', 12))
+label_title_ip = ttk.Label(window, text='IP Adress', font=('Arial', 12))
 frame_ip = ttk.Frame(window)
 
 entry_ip_1 = ttk.Entry(frame_ip, justify='center', width='5', foreground='lightgrey')
@@ -45,7 +45,7 @@ entry_ip_3.insert(0,'XXX')
 entry_ip_4 = ttk.Entry(frame_ip, justify='center', width='5', foreground='lightgrey')
 entry_ip_4.insert(0,'XXX')
 entry_cidr = ttk.Entry(frame_ip, justify='center', width='3', foreground='lightgrey')
-entry_cidr.insert(0,'XXX')
+entry_cidr.insert(0,'XX')
 
 label_ip_12 = ttk.Label(frame_ip, text='.')
 label_ip_23 = ttk.Label(frame_ip, text='.')
@@ -61,7 +61,7 @@ label_ip_23.grid(row=0, column=3)
 entry_ip_3.grid(row=0, column=4)
 label_ip_34.grid(row=0, column=5)
 entry_ip_4.grid(row=0, column=6)
-label_ip_cidr.grid(row=0, column=7)
+label_ip_cidr.grid(row=0, column=7, padx=5)
 entry_cidr.grid(row=0, column=8)
 
 # Entry Subnetmask
@@ -77,6 +77,9 @@ entry_sub_3.insert(0,'XXX')
 entry_sub_4 = ttk.Entry(frame_sub, justify='center', width='5', foreground='lightgrey')
 entry_sub_4.insert(0,'XXX')
 
+radio_sub = ttk.Radiobutton(window)
+radio_cidr = ttk.Radiobutton(window)
+
 label_sub_12 = ttk.Label(frame_sub, text='.')
 label_sub_23 = ttk.Label(frame_sub, text='.')
 label_sub_34 = ttk.Label(frame_sub, text='.')
@@ -90,6 +93,7 @@ label_sub_23.grid(row=0, column=3)
 entry_sub_3.grid(row=0, column=4)
 label_sub_34.grid(row=0, column=5)
 entry_sub_4.grid(row=0, column=6)
+
 
 # events
 entry_ip_1.bind('<FocusIn>', entry_focus_in)

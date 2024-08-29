@@ -43,7 +43,7 @@ cidr_to_subnet = {
 }
 
 def cidr_to_sub(sub_mask):
-    subnet_mask = cidr_to_subnet.get(sub_mask)
+    subnet_mask = cidr_to_subnet.get(sub_mask, '0.0.0.0')
     return subnet_mask
 
 def get_network(ip_adress, sub_mask):
