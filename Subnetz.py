@@ -75,5 +75,15 @@ def possible_hosts_get(network):
     possible_hosts = network.num_addresses - 2 if network.prefixlen < 31 else network.num_addresses
     return possible_hosts
 
+if __name__ == '__main__':
+    ip_adress = input('Enter IP-Adress: ')
+    sub_mask = input('Enter Submask Adress: ')
+    network = get_network(ip_adress, sub_mask)
+    print(f'Netzwerk-Adresse: {net_ip_get(network)}')
+    print(f'Broadcast-IP: {broadcast_get(network)}')
+    print(f'First Host: {first_host_get(network)}')
+    print(f'Last Host: {last_host_get(network)}')
+    print(f'Possible Hosts: {possible_hosts_get(network)}')
+
 
 
