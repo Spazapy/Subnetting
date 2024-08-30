@@ -7,27 +7,32 @@ class App(ttk.Window):
     def __init__(self):
         super().__init__(themename='darkly')
         self.title('Network Tool')
-        self.geometry('600x400')
+        self.geometry('300x350')
+        self.resizable(False, False)
 
-        self.ip = Entry(self, 'XXX', 'normal', 'Ip-Adress', entry_cidr=True)
-        self.sub = Entry(self, 'XXX', 'readonly', 'Subnetmask')
-        self.radio_buttons = Toggle(self, self.sub, self.ip)
+        self.entry_ip = Entry(self, 'XXX', 'normal', 'Ip-Adress', entry_cidr=True)
+        self.entry_sub = Entry(self, 'XXX', 'readonly', 'Subnetmask')
+        self.radio_buttons = Toggle(self, self.entry_sub, self.entry_ip)
 
         self.button_submit = ttk.Button(self, text='Submit', command=self.get_cidr_value)
-        self.button_submit.pack(pady=10)
+        self.button_submit.pack(pady=(10, 10))
+
+        self.result = FrameResult(self).pack(expand=True, fill='x', padx=20)
+
+        self.entry_ip.cidr_field.bind('<Return>', self.get_cidr_value)
 
         self.mainloop()
 
-    def get_cidr_value(self):
-        cidr_value = self.ip.get_cidr_value()
+    def get_cidr_value(self,event=None):
+        cidr_value = self.entry_ip.get_cidr_value()
         subnetmask = net.cidr_to_sub(cidr_value).split('.')
-        self.sub.toggle_state('normal')
+        self.entry_sub.toggle_state('normal')
         counter = 0
-        for octet in self.sub.octet_list:
+        for octet in self.entry_sub.octet_list:
             octet.delete(0, tk.END)
             octet.insert(0,subnetmask[counter])
             counter += 1
-        self.sub.toggle_state('readonly')
+        self.entry_sub.toggle_state('readonly')
 
 class Toggle(ttk.Frame):
     def __init__(self, parent, entry_sub, entry_ip):
@@ -131,6 +136,39 @@ class Octett(ttk.Entry):
 
     def get_value(self):
         return self.get()
+    
+class FrameResult(ttk.Frame):
+    def __init__(self, parent):
+        super().__init__(parent)
+
+        self.rowconfigure((1,2,3,4,5), weight=1, uniform='a')
+        self.columnconfigure(1, weight=1, uniform='a')
+        self.columnconfigure(2, weight=4, uniform='a')
+
+        self.Label_netid = ttk.Label(self, text='Network Adress: ', font=('Arial', 10))
+        self.Label_first_host = ttk.Label(self, text='First Host IP: ', font=('Arial', 10))
+        self.Label_last_host = ttk.Label(self, text='Last Host IP: ', font=('Arial', 10))
+        self.Label_broadcast = ttk.Label(self, text='Broadcast Adress: ', font=('Arial', 10))
+        self.Label_max_hosts = ttk.Label(self, text='Max. # of Hosts: ', font=('Arial', 10))
+
+        self.Label_netid.grid(row=0, column=0, sticky='e')
+        self.Label_first_host.grid(row=1, column=0, sticky='e')
+        self.Label_last_host.grid(row=2, column=0, sticky='e')
+        self.Label_broadcast.grid(row=3, column=0, sticky='e')
+        self.Label_max_hosts.grid(row=4, column=0, sticky='e')
+
+        
+        self.Label_netid_result = ttk.Label(self, text='0.0.0.0', font=('Arial', 10))
+        self.Label_first_host_result = ttk.Label(self, text='0.0.0.0', font=('Arial', 10))
+        self.Label_last_host_result = ttk.Label(self, text='0.0.0.0', font=('Arial', 10))
+        self.Label_broadcast_result = ttk.Label(self, text='0.0.0.0', font=('Arial', 10))
+        self.Label_max_hosts_result = ttk.Label(self, text='0', font=('Arial', 10))
+
+        self.Label_netid_result.grid(row=0, column=1, columnspan=4, sticky='w')
+        self.Label_first_host_result.grid(row=1, column=1, columnspan=4, sticky='w')
+        self.Label_last_host_result.grid(row=2, column=1, columnspan=4, sticky='w')
+        self.Label_broadcast_result.grid(row=3, column=1, columnspan=4, sticky='w')
+        self.Label_max_hosts_result.grid(row=4, column=1, columnspan=4, sticky='w')
 
 # run
 App()
