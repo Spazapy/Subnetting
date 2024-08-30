@@ -11,8 +11,8 @@ class App(ttk.Window):
         self.geometry('300x350')
         self.resizable(False, False)
 
-        self.entry_ip = Entry(self, 'XXX', 'normal', 'Ip-Adress', entry_cidr=True)
-        self.entry_sub = Entry(self, 'XXX', 'readonly', 'Subnetmask')
+        self.entry_ip = Entry(self, '0', 'normal', 'Ip-Adress', entry_cidr=True)
+        self.entry_sub = Entry(self, '0', 'readonly', 'Subnetmask')
         self.radio_buttons = Toggle(self, self.entry_sub, self.entry_ip)
 
         self.button_submit = ttk.Button(self, text='Submit', command=self.show_network)
@@ -47,12 +47,13 @@ class App(ttk.Window):
         ip = f"{ip_lst[0]}.{ip_lst[1]}.{ip_lst[2]}.{ip_lst[3]}"
         try:
             net.ipaddress.ip_address(ip)
-            return ip
         except:
             messagebox.showwarning(title='Invalid IP', message='Invalid IP-Address. Please enter a valid IP')
+            ip = '0.0.0.0'
             for octet in self.entry_ip.octet_list:
                 octet.delete(0, tk.END)
                 octet.insert(0,'0')
+        return ip
 
     def get_mask(self):
         if not self.entry_ip.cidr_field.instate(['readonly']):
@@ -173,7 +174,7 @@ class Octett(ttk.Entry):
 
         def entry_focus_out(event):
             if event.widget.get() == '':
-                event.widget.insert(0, 'XXX')
+                event.widget.insert(0, '0')
 
         self.bind('<FocusIn>', entry_focus_in)
         self.bind('<FocusOut>', entry_focus_out)
@@ -185,7 +186,7 @@ class FrameResult(ttk.Frame):
     def __init__(self, parent):
         super().__init__(parent)
 
-        image_url = './icons/copy_alt.png'
+        image_url = './icons/copy.png'
         self.image = tk.PhotoImage(file=image_url)
 
         self.rowconfigure((1,2,3,4,5), weight=1, uniform='a')
@@ -206,10 +207,10 @@ class FrameResult(ttk.Frame):
 
         
         self.Label_netid_result = ttk.Label(self, text='0.0.0.0', font=('Arial', 10))
-        self.Label_first_host_result = ttk.Label(self, text='0.0.0.0', font=('Arial', 10))
-        self.Label_last_host_result = ttk.Label(self, text='0.0.0.0', font=('Arial', 10))
-        self.Label_broadcast_result = ttk.Label(self, text='0.0.0.0', font=('Arial', 10))
-        self.Label_max_hosts_result = ttk.Label(self, text='0', font=('Arial', 10))
+        self.Label_first_host_result = ttk.Label(self, text='0.0.0.1', font=('Arial', 10))
+        self.Label_last_host_result = ttk.Label(self, text='255.255.255.254', font=('Arial', 10))
+        self.Label_broadcast_result = ttk.Label(self, text='255.255.255.255', font=('Arial', 10))
+        self.Label_max_hosts_result = ttk.Label(self, text='4294967294', font=('Arial', 10))
 
         self.Label_netid_result.grid(row=0, column=1, columnspan=3, sticky='w')
         self.Label_first_host_result.grid(row=1, column=1, columnspan=3, sticky='w')
@@ -243,11 +244,11 @@ class FrameResult(ttk.Frame):
             image=self.image, 
             command=lambda: self.copy_to_clipboard(self.Label_max_hosts_result.cget('text')))
 
-        self.button_netid.grid(row=0, column=4, sticky='e', ipady=0, ipadx=0)
-        self.button_first_host.grid(row=1, column=4, sticky='e')
-        self.button_last_host.grid(row=2, column=4, sticky='e')
-        self.button_broadcast.grid(row=3, column=4, sticky='e')
-        self.button_max_hosts.grid(row=4, column=4, sticky='e')
+        self.button_netid.grid(row=0, column=4, sticky='e', ipady=1, ipadx=1)
+        self.button_first_host.grid(row=1, column=4, sticky='e', ipady=1, ipadx=1)
+        self.button_last_host.grid(row=2, column=4, sticky='e', ipady=1, ipadx=1)
+        self.button_broadcast.grid(row=3, column=4, sticky='e', ipady=1, ipadx=1)
+        self.button_max_hosts.grid(row=4, column=4, sticky='e', ipady=1, ipadx=1)
 
     def update_labels(self, network_id, first_host, last_host, broadcast, max_hosts):
         self.Label_netid_result.config(text=network_id)
