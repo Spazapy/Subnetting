@@ -1,3 +1,4 @@
+# Module to get the basic information of a subnet utilizing the ipaddress library
 import ipaddress
 
 network_ip = 0
@@ -43,10 +44,12 @@ cidr_to_subnet = {
 }
 
 def cidr_to_sub(sub_mask):
+    """Lookup the Subnetmask for a given prefix"""
     subnet_mask = cidr_to_subnet.get(sub_mask, '0.0.0.0')
     return subnet_mask
 
 def get_network(ip_adress, sub_mask):
+    """Get a Network object from ip and subnetmask"""
     global network
     if sub_mask.isdigit():
         subnet_mask = cidr_to_subnet.get(sub_mask)
@@ -56,22 +59,27 @@ def get_network(ip_adress, sub_mask):
     return network
 
 def net_ip_get(network):
+    """Get the netip"""
     network_ip = network.network_address
     return network_ip
 
 def broadcast_get(network):
+    """Get the Broadcast IP"""
     broadcast = network.broadcast_address
     return broadcast
 
 def first_host_get(network):
+    """Get the first available host in the network"""
     first_host = network[1] if network.prefixlen < 31 else network[0]
     return first_host
 
 def last_host_get(network):
+    """Get the last available host in the network"""
     last_host = network[-2] if network.prefixlen < 31 else network[-1]
     return last_host
 
 def possible_hosts_get(network):
+    """Get the max number of hosts in a network"""
     possible_hosts = network.num_addresses - 2 if network.prefixlen < 31 else network.num_addresses
     return possible_hosts
 

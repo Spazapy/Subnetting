@@ -1,10 +1,14 @@
-import Subnetz as net
+# small gui app to display basic network information give an IP Address and a
+# CIDR Prefix or Subnetmask. Uses the ipaddress library. The submodule network.py
+# can be used standalone from the cli
+import network as net
 import tkinter as tk
 from tkinter import ttk, messagebox
 import ttkbootstrap as ttk
 import ipaddress
 
 class App(ttk.Window):
+    """Main Window"""
     def __init__(self):
         super().__init__(themename='darkly')
         self.title('Network Tool')
@@ -26,6 +30,8 @@ class App(ttk.Window):
         self.mainloop()
 
     def show_network(self):
+        """Display the network information in the Main Window. Check if mask and ip
+        are valid"""
         ip = self.validate_ip()
         subnetmask = self.get_mask()
         try:
@@ -43,6 +49,8 @@ class App(ttk.Window):
 
 
     def validate_ip(self):
+        """Get the ip from the Entries and check if its valid. If not show a
+        warning and reset ip to 0.0.0.0"""
         ip_lst = self.entry_ip.get_values()
         ip = f"{ip_lst[0]}.{ip_lst[1]}.{ip_lst[2]}.{ip_lst[3]}"
         try:
@@ -56,6 +64,8 @@ class App(ttk.Window):
         return ip
 
     def get_mask(self):
+        """Check which input we use for the subnetmask (prefix or subnetmask). Get
+        the the subnetmask and return it if it is valid"""
         if not self.entry_ip.cidr_field.instate(['readonly']):
             cidr_value = self.entry_ip.get_cidr_value()
             subnetmask = net.cidr_to_sub(cidr_value)
@@ -71,6 +81,8 @@ class App(ttk.Window):
         return subnetmask
 
     def update_subnetmask(self, subnetmask):
+        """If we get the mask by the prefix, we insert the values into the
+        subnetmask entries"""
         self.entry_sub.toggle_state('normal')
         counter = 0
         for octet in self.entry_sub.octet_list:
@@ -80,6 +92,8 @@ class App(ttk.Window):
         self.entry_sub.toggle_state('readonly')
 
 class Toggle(ttk.Frame):
+    """Toggling what information we use: subnetmask or prefix and setting the not
+    used to readonly"""
     def __init__(self, parent, entry_sub, entry_ip):
         super().__init__(parent)
         self.pack()
@@ -105,6 +119,7 @@ class Toggle(ttk.Frame):
         self.radio_cidr.pack(side='left')
 
     def toggle_entries(self):
+        """Funktion to toggle the state dependent on actual state"""
         if self.radio.get() == 'sub':
             self.entry_sub.toggle_state('normal')
             self.entry_ip.toggle_cidr_state('readonly')
@@ -113,6 +128,8 @@ class Toggle(ttk.Frame):
             self.entry_ip.toggle_cidr_state('normal')
         
 class Entry(ttk.Frame):
+    """Creates a frame containing four entry fields sepearted by dots as input for
+    an ip or subnetmask"""
     def __init__(self, parent, text, state, entry_title, entry_cidr=False):
         super().__init__(parent)
         self.pack()
@@ -130,33 +147,41 @@ class Entry(ttk.Frame):
         ttk.Label(self, text='.').pack(side='left')
         oct_4 = Octett(self, text, state)
 
+        # we need this list to access and manipulate the entries from within 
+        # various other functions
         self.octet_list.append(oct_1)
         self.octet_list.append(oct_2)
         self.octet_list.append(oct_3)
         self.octet_list.append(oct_4)
 
+        # create an extra field for the CIDR prefix
         if entry_cidr:
             ttk.Label(self, text='/').pack(side='left', padx=6)
             self.cidr_field = Octett(self, text, state)
             self.cidr_field.pack(side='left')
 
     def get_values(self):
+        """Get the values from the entries as a list"""
         return [octet.get_value() for octet in self.octet_list]
     
     def get_cidr_value(self):
+        """Get the Prefix from the extra entry"""
         if self.cidr_field:
             return self.cidr_field.get_value()
         return None
     
     def toggle_state(self, new_state):
+        """toggle the state of all entries"""
         for octet in self.octet_list:
             octet.config(state=new_state)
 
     def toggle_cidr_state(self, new_state):
+        """toggle the state of the cidr entry"""
         if self.cidr_field:
             self.cidr_field.config(state=new_state)
 
 class Octett(ttk.Entry):
+    """Create single Entry Field with focus in and focus out bindings"""
     def __init__(self, parent, text, state):
         super().__init__(
             parent, 
@@ -169,10 +194,12 @@ class Octett(ttk.Entry):
         self.insert(0,text)
 
         def entry_focus_in(event):
+            """empty the field if it gets focus"""
             if event.widget.get() != '':
                 event.widget.delete(0, tk.END)
 
         def entry_focus_out(event):
+            """insert 0 if entry looses focus without input"""
             if event.widget.get() == '':
                 event.widget.insert(0, '0')
 
@@ -180,9 +207,11 @@ class Octett(ttk.Entry):
         self.bind('<FocusOut>', entry_focus_out)
 
     def get_value(self):
+        """return entry value"""
         return self.get()
     
 class FrameResult(ttk.Frame):
+    """create a Frame with two columns listing all the relevant network information"""
     def __init__(self, parent):
         super().__init__(parent)
 
@@ -251,6 +280,7 @@ class FrameResult(ttk.Frame):
         self.button_max_hosts.grid(row=4, column=4, sticky='e', ipady=1, ipadx=1)
 
     def update_labels(self, network_id, first_host, last_host, broadcast, max_hosts):
+        """update the Labels"""
         self.Label_netid_result.config(text=network_id)
         self.Label_first_host_result.config(text=first_host)
         self.Label_last_host_result.config(text=last_host)
@@ -258,6 +288,7 @@ class FrameResult(ttk.Frame):
         self.Label_max_hosts_result.config(text=max_hosts)
 
     def copy_to_clipboard(self, label):
+        """copy the content of the corresponding result label to the clipboard"""
         self.clipboard_clear()
         self.clipboard_append(label)
         self.update()
